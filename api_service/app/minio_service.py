@@ -1,4 +1,5 @@
 import logging
+from fastapi import HTTPException, status
 from minio import Minio
 from minio.error import S3Error
 from app.config import MINIO_ROOT_USER, MINIO_ROOT_PASSWORD
@@ -29,24 +30,6 @@ class MinioService:
         except S3Error as e:
             logger.error(f"An error occurred while checking/creating the bucket: {e}")
 
-    def add_file(self, bucket_name, object_name, file_path):
-        # Upload a file to the specified bucket.
-        try:
-            result = self.client.fput_object(bucket_name, object_name, file_path)
-            logger.info(f"File '{file_path}' uploaded as '{object_name}' to bucket '{bucket_name}'.")
-            return result
-        except S3Error as e:
-            logger.error(f"Failed to upload file: {e}")
-
-    def get_file(self, bucket_name, object_name, file_path):
-        # Download a file from the specified bucket.
-        try:
-            result = self.client.fget_object(bucket_name, object_name, file_path)
-            logger.info(f"File '{object_name}' downloaded from bucket '{bucket_name}' to '{file_path}'.")
-            return result
-        except S3Error as e:
-            logger.error(f"Failed to download file: {e}")
-
     def get_presigned_url(self, bucket_name, object_name):
         # Generate a presigned URL to access the object
         try:
@@ -56,3 +39,10 @@ class MinioService:
         except S3Error as e:
             logger.error(f"Failed to generate presigned URL: {e}")
             return None
+
+    def upload_to_minio(self, bucket_name: str, minio_path: str, file_data: str) -> str:
+        try:
+            self.client.put_object(bucket_name, minio_path, file_data, length=-1, part_size=10 * 1024 * 1024)
+            return minio_path
+        except S3Error as e:
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
