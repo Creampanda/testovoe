@@ -55,7 +55,20 @@ docker-compose up --build
 
 ## Тестирование
 Для тестирования основного функционала были написаны несколько unit-тестов. Вы можете запустить тесты с использованием pytest:
-
+```bash
+git clone https://github.com/Creampanda/testovoe
+cd testovoe
+```
+Создать и запустить virtual environment
+```bash
+python3 -m venv env
+source env/bin/activate
+```
+Установить зависимости
+```bash
+pip3 install -r api_service/requirements.txt 
+```
+Запустить тесты
 ```bash
 pytest
 ```
