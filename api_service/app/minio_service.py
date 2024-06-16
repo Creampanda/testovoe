@@ -8,15 +8,18 @@ logger = logging.getLogger("resources")
 
 
 class MinioService:
-    def __init__(self):
+    def __init__(self, client=None):
         # Initialize minio client with an endpoint and access/secret keys.
-        self.client = Minio(
-            endpoint="minio:9000",
-            access_key=MINIO_ROOT_USER,
-            secret_key=MINIO_ROOT_PASSWORD,
-            secure=False,  # Set to True if you use https
-        )
-        self.ensure_bucket_exists("memes")
+        if client:
+            self.client = client
+        else:
+            self.client = Minio(
+                endpoint="minio:9000",
+                access_key=MINIO_ROOT_USER,
+                secret_key=MINIO_ROOT_PASSWORD,
+                secure=False,  # Set to True if you use https
+            )
+            self.ensure_bucket_exists("memes")
 
     def ensure_bucket_exists(self, bucket_name):
         # Create a bucket if it does not exist.

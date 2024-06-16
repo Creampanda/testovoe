@@ -1,8 +1,6 @@
-from fastapi import APIRouter
 import logging
 from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, declarative_base
 from app.config import POSTGRES_DB, POSTGRES_PASSWORD, POSTGRES_USER
 from app.minio_service import MinioService
 

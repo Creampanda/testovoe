@@ -1,13 +1,13 @@
 from typing import Optional
 import uuid
 from sqlalchemy.orm import Session
+from datetime import datetime, timezone
+from fastapi import HTTPException, UploadFile, status
+import logging
 from minio.error import S3Error
 from app.minio_service import MinioService
 from app.models.meme import Meme
 from app.models.meme_responses import MemeResponse, PaginatedMemesResponse
-from datetime import datetime
-from fastapi import HTTPException, UploadFile, status
-import logging
 
 logger = logging.getLogger("resources")
 
@@ -111,8 +111,8 @@ class MemeService:
                 title=title,
                 minio_bucket=self.bucket_name,
                 minio_path=minio_path,
-                created_at=datetime.utcnow(),
-                updated_at=datetime.utcnow(),
+                created_at=datetime.now(timezone.utc),
+                updated_at=datetime.now(timezone.utc),
             )
             self.db.add(meme)
             self.db.commit()
@@ -185,7 +185,7 @@ class MemeService:
             minio_path = f"{uuid.uuid4()}.{file_extension}"
             self.minio_client.upload_to_minio(bucket_name="memes", minio_path=minio_path, file_data=file.file)
             meme.minio_path = minio_path
-        meme.updated_at = datetime.utcnow()
+        meme.updated_at = datetime.now(timezone.utc)
         self.db.commit()
         self.db.refresh(meme)
         presigned_url = self.minio_client.get_presigned_url(meme.minio_bucket, meme.minio_path)
